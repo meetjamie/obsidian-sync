@@ -1,0 +1,40 @@
+name: Release Obsidian plugin
+
+# Pushing a tag that matches the manifest version (no leading "v", e.g. 0.1.0)
+# builds the plugin and publishes a GitHub release with the assets BRAT needs.
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - run: pnpm install --no-frozen-lockfile
+
+      - run: pnpm run build
+
+      - name: Create release with plugin assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes "Release $TAG" \
+            manifest.json main.js versions.json

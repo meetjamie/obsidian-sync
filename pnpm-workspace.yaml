@@ -1,0 +1,4 @@
+# Allow esbuild to run its postinstall (fetches the platform binary). pnpm blocks
+# dependency build scripts by default; this opts esbuild in for local + CI.
+allowBuilds:
+  esbuild: true
