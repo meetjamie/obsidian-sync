@@ -51,7 +51,7 @@ interface ClientOptions {
   httpGet?: HttpGet
 }
 
-const DEFAULT_BASE_URL = 'https://api.meetjamie.ai'
+const DEFAULT_BASE_URL = 'https://beta-api.meetjamie.ai'
 
 // Jamie's public API is tRPC-over-HTTP: GET params are JSON-encoded under the
 // `input` query param as `{ json: {...} }`, and the response payload is nested

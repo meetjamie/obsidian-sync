@@ -11,7 +11,9 @@ export class JamieSettingTab extends PluginSettingTab {
     super(app, plugin)
   }
 
-  private setting(name: string, desc: string | null) {
+  // NB: must not be named `setting` — Obsidian's SettingTab base (1.13+) has an instance
+  // member of that name that would shadow this method at runtime.
+  private makeSetting(name: string, desc: string | null) {
     const setting = new Setting(this.containerEl).setName(name)
     if (desc) setting.setDesc(desc)
     return setting
@@ -23,7 +25,7 @@ export class JamieSettingTab extends PluginSettingTab {
     get: () => string,
     set: (value: string) => void
   ) {
-    this.setting(name, desc).addText((text) =>
+    this.makeSetting(name, desc).addText((text) =>
       text.setValue(get()).onChange(async (value) => {
         set(value)
         await this.plugin.persist()
@@ -37,7 +39,7 @@ export class JamieSettingTab extends PluginSettingTab {
     get: () => boolean,
     set: (value: boolean) => void
   ) {
-    this.setting(name, desc).addToggle((toggle) =>
+    this.makeSetting(name, desc).addToggle((toggle) =>
       toggle.setValue(get()).onChange(async (value) => {
         set(value)
         await this.plugin.persist()
@@ -52,7 +54,7 @@ export class JamieSettingTab extends PluginSettingTab {
     get: () => number,
     set: (value: number) => void
   ) {
-    this.setting(name, desc).addText((text) =>
+    this.makeSetting(name, desc).addText((text) =>
       text.setValue(String(get())).onChange(async (value) => {
         const parsed = Number(value)
         if (!Number.isNaN(parsed) && parsed >= min) {
@@ -88,7 +90,7 @@ export class JamieSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('API base URL')
       .setDesc(
-        'Default https://api.meetjamie.ai. For a local instance use http://localhost:8789.'
+        'Default https://beta-api.meetjamie.ai. For a local instance use http://localhost:8789.'
       )
       .addText((text) =>
         text.setValue(settings.baseUrl).onChange(async (value) => {

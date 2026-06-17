@@ -124,7 +124,7 @@ describe('runSync — re-sync edited notes', () => {
       log: noop,
       now: at('2026-06-16T09:00:00Z')
     })
-    meeting.summary = { shortText: 'edited', fullText: 'edited body' }
+    meeting.summary = { markdown: 'edited body', html: '', short: 'edited' }
     const re = await runSync({
       client: makeClient([meeting]),
       writer,

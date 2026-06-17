@@ -44,7 +44,7 @@ describe('contentHash', () => {
   it('changes when the summary changes', () => {
     const edited: MeetingDetail = {
       ...sampleMeeting,
-      summary: { shortText: 'x', fullText: 'changed' }
+      summary: { markdown: 'changed', html: '', short: 'x' }
     }
     expect(contentHash(edited)).not.toBe(contentHash(sampleMeeting))
   })

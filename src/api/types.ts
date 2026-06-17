@@ -55,8 +55,9 @@ export interface MeetingDetail {
   endTime: string | null
   locked: boolean
   user: { id: string; email: string }
-  // `fullText` and `transcript` already arrive as Markdown from the API.
-  summary: { fullText: string; shortText: string } | null
+  // The API converts the stored Tiptap summary to these: `markdown` is the body,
+  // `short` the one-liner. `transcript` likewise already arrives as Markdown.
+  summary: { markdown: string; html: string; short: string } | null
   transcript: string | null
   participants: Participant[]
   tasks: MeetingTask[]

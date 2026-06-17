@@ -10,8 +10,9 @@ export const sampleMeeting: MeetingDetail = {
   locked: false,
   user: { id: 'user-1', email: 'alex@example.com' },
   summary: {
-    shortText: 'Reviewed progress, set priorities for the week, and assigned follow-ups.',
-    fullText: [
+    short: 'Reviewed progress, set priorities for the week, and assigned follow-ups.',
+    html: '',
+    markdown: [
       '## Key decisions',
       '',
       '- Prioritize the onboarding flow for this sprint.',

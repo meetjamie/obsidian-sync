@@ -65,11 +65,11 @@ const renderBody = (meeting: MeetingDetail, opts: RenderOptions, headingLevel: 1
   const heading = '#'.repeat(headingLevel)
   const lines: string[] = [`${heading} ${title}`]
 
-  if (opts.includeShortSummaryCallout && meeting.summary?.shortText) {
-    lines.push('', '> [!summary] Overview', `> ${meeting.summary.shortText.replace(/\n/g, '\n> ')}`)
+  if (opts.includeShortSummaryCallout && meeting.summary?.short) {
+    lines.push('', '> [!summary] Overview', `> ${meeting.summary.short.replace(/\n/g, '\n> ')}`)
   }
-  if (meeting.summary?.fullText) {
-    lines.push('', meeting.summary.fullText.trim())
+  if (meeting.summary?.markdown) {
+    lines.push('', meeting.summary.markdown.trim())
   }
   if (opts.includeTasks && meeting.tasks.length > 0) {
     lines.push('', `${heading}# Action items`)

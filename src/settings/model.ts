@@ -20,7 +20,7 @@ export interface JamieSyncSettings {
 
 export const DEFAULT_SETTINGS: JamieSyncSettings = {
   apiKey: '',
-  baseUrl: 'https://api.meetjamie.ai',
+  baseUrl: 'https://beta-api.meetjamie.ai',
   destinationMode: 'folder',
   notesFolder: 'Jamie/Meetings',
   transcriptsFolder: 'Jamie/Transcripts',

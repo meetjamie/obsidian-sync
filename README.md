@@ -55,7 +55,7 @@ New releases then auto-update.
 
 ## Network use
 
-This plugin sends authenticated HTTPS requests to the configured Jamie API base URL (default `https://api.meetjamie.ai`) to read your meetings, and stores your API key in the plugin's `data.json` inside the vault. It makes no other network calls. (This must be disclosed in a community-store submission.)
+This plugin sends authenticated HTTPS requests to the configured Jamie API base URL (default `https://beta-api.meetjamie.ai`) to read your meetings, and stores your API key in the plugin's `data.json` inside the vault. It makes no other network calls. (This must be disclosed in a community-store submission.)
 
 ## Layout
 
