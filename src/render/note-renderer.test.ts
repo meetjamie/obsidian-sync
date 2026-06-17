@@ -65,6 +65,19 @@ describe('renderNoteFile', () => {
   it('links the transcript', () => {
     expect(out).toContain('Transcript: [[T]]')
   })
+
+  it('normalizes •-run-on summary bullets into Markdown list items', () => {
+    const bullety: MeetingDetail = {
+      ...sampleMeeting,
+      summary: { markdown: '## Heading\n• alpha• beta• gamma', html: '', short: 's' }
+    }
+    const rendered = renderNoteFile(bullety, opts)
+    expect(rendered).toContain('## Heading')
+    expect(rendered).toContain('- alpha')
+    expect(rendered).toContain('- beta')
+    expect(rendered).toContain('- gamma')
+    expect(rendered).not.toContain('• alpha')
+  })
 })
 
 describe('renderSection', () => {

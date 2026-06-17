@@ -60,6 +60,25 @@ export const contentHash = (meeting: MeetingDetail) => {
   return (hash >>> 0).toString(16).padStart(8, '0')
 }
 
+// Jamie serializes summary bullet lists as a single "• a• b• c" line, and `•` is not a
+// Markdown list marker — so Obsidian renders the whole run as one paragraph. Split any
+// line starting with `•` into proper "- " list items so it renders as a real list.
+const normalizeSummaryMarkdown = (markdown: string) =>
+  markdown
+    .trim()
+    .split('\n')
+    .map((line) =>
+      line.trimStart().startsWith('•')
+        ? line
+            .split('•')
+            .map((part) => part.trim())
+            .filter(Boolean)
+            .map((part) => `- ${part}`)
+            .join('\n')
+        : line
+    )
+    .join('\n')
+
 const renderBody = (meeting: MeetingDetail, opts: RenderOptions, headingLevel: 1 | 2) => {
   const title = meetingTitle(meeting)
   const heading = '#'.repeat(headingLevel)
@@ -69,7 +88,7 @@ const renderBody = (meeting: MeetingDetail, opts: RenderOptions, headingLevel: 1
     lines.push('', '> [!summary] Overview', `> ${meeting.summary.short.replace(/\n/g, '\n> ')}`)
   }
   if (meeting.summary?.markdown) {
-    lines.push('', meeting.summary.markdown.trim())
+    lines.push('', normalizeSummaryMarkdown(meeting.summary.markdown))
   }
   if (opts.includeTasks && meeting.tasks.length > 0) {
     lines.push('', `${heading}# Action items`)
