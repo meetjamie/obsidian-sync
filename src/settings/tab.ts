@@ -77,7 +77,8 @@ export class JamieSettingTab extends PluginSettingTab {
       .setDesc(
         'Personal Jamie API key (starts with jk_). Create one in Jamie → Settings → Developers.'
       )
-      .addText((text) =>
+      .addText((text) => {
+        text.inputEl.type = 'password' // mask the key on screen (screen-share / shoulder-surf)
         text
           .setPlaceholder('jk_…')
           .setValue(settings.apiKey)
@@ -85,7 +86,7 @@ export class JamieSettingTab extends PluginSettingTab {
             settings.apiKey = value.trim()
             await this.plugin.persist()
           })
-      )
+      })
 
     new Setting(containerEl).setName('Test connection').addButton((button) =>
       button.setButtonText('Test').onClick(async () => {
