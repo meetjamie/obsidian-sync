@@ -37,6 +37,8 @@ export interface SyncDeps {
   state: SyncState
   log: (message: string) => void
   now: () => Date
+  // Injected so the pure engine holds no timer; Obsidian passes a window.setTimeout-based wait.
+  wait: (ms: number) => Promise<void>
 }
 
 export interface SyncResult {
@@ -44,8 +46,6 @@ export interface SyncResult {
   written: number
   ok: boolean
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)))
 
 const renderOptionsFor = (
   settings: JamieSyncSettings,
@@ -104,7 +104,7 @@ const writeMeeting = async (
 }
 
 export const runSync = async (deps: SyncDeps): Promise<SyncResult> => {
-  const { client, writer, settings, state, log, now } = deps
+  const { client, writer, settings, state, log, now, wait } = deps
   const start = now()
   const backfillCutoff = new Date(start.getTime() - settings.backfillLookbackDays * 86_400_000)
   const recentCutoffMs = start.getTime() - settings.recentWindowDays * 86_400_000
@@ -128,7 +128,7 @@ export const runSync = async (deps: SyncDeps): Promise<SyncResult> => {
         return { scanned, written, ok: false }
       }
       if (error instanceof JamieRateLimitError) {
-        await sleep(error.resetAtMs - Date.now())
+        await wait(Math.max(0, error.resetAtMs - Date.now()))
         continue
       }
       log(`List failed: ${(error as Error).message}`)
@@ -151,7 +151,7 @@ export const runSync = async (deps: SyncDeps): Promise<SyncResult> => {
         detail = await client.getMeeting(summary.id)
       } catch (error) {
         if (error instanceof JamieRateLimitError) {
-          await sleep(error.resetAtMs - Date.now())
+          await wait(Math.max(0, error.resetAtMs - Date.now()))
           continue
         }
         log(`Skipped ${summary.id}: ${(error as Error).message}`)

@@ -9,6 +9,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write # required for build-provenance attestation
+  attestations: write # required for build-provenance attestation
 
 jobs:
   release:
@@ -29,6 +31,14 @@ jobs:
 
       - run: pnpm run build
 
+      # Cryptographically attest that main.js was built from this repo (provenance).
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: main.js
+
+      # Obsidian only downloads manifest.json + main.js (+ styles.css) from a release;
+      # versions.json is read from the repo root, so it is NOT attached here.
       - name: Create release with plugin assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -37,4 +47,4 @@ jobs:
           gh release create "$TAG" \
             --title "$TAG" \
             --notes "Release $TAG" \
-            manifest.json main.js versions.json
+            manifest.json main.js

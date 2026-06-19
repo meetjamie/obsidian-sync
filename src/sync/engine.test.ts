@@ -57,6 +57,7 @@ describe('runSync — folder mode', () => {
       settings: config,
       state,
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:00:00Z')
     })
     const second = await runSync({
@@ -65,6 +66,7 @@ describe('runSync — folder mode', () => {
       settings: config,
       state,
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:30:00Z')
     })
     expect(first.written).toBe(1)
@@ -91,6 +93,7 @@ describe('runSync — daily-note mode', () => {
       settings: config,
       state,
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:00:00Z')
     })
     const again = await runSync({
@@ -99,6 +102,7 @@ describe('runSync — daily-note mode', () => {
       settings: config,
       state,
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:30:00Z')
     })
     const daily = files.get(`${config.dailyNoteFolder}/2026-06-15.md`) ?? ''
@@ -122,6 +126,7 @@ describe('runSync — re-sync edited notes', () => {
       settings: config,
       state,
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:00:00Z')
     })
     meeting.summary = { markdown: 'edited body', html: '', short: 'edited' }
@@ -131,6 +136,7 @@ describe('runSync — re-sync edited notes', () => {
       settings: config,
       state,
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:30:00Z')
     })
     expect(re.written).toBe(1)
@@ -146,6 +152,7 @@ describe('runSync — re-sync edited notes', () => {
       settings: config,
       state,
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:00:00Z')
     })
     const re = await runSync({
@@ -154,6 +161,7 @@ describe('runSync — re-sync edited notes', () => {
       settings: config,
       state,
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:30:00Z')
     })
     expect(re.written).toBe(0)
@@ -170,6 +178,7 @@ describe('runSync — error handling', () => {
       settings: settings(),
       state: { syncedMeetings: {} },
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:00:00Z')
     })
     expect(result.written).toBe(0)
@@ -190,6 +199,7 @@ describe('runSync — error handling', () => {
       settings: settings(),
       state: { syncedMeetings: {} },
       log: noop,
+      wait: async () => {},
       now: at('2026-06-16T09:00:00Z')
     })
     expect(result.ok).toBe(false)

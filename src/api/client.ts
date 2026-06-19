@@ -24,10 +24,10 @@ export class JamieHttpError extends Error {
   }
 }
 
-// Minimal HTTP surface the client needs. Inside Obsidian this is backed by
-// `requestUrl` (CORS-safe, reaches localhost); in Node/tests it can be `fetch`
-// or a fake. Keeping the client off the WHATWG fetch types lets the core run
-// anywhere without bundling Obsidian.
+// Minimal HTTP surface the client needs, injected by the caller. Inside Obsidian
+// it's backed by `requestUrl` (CORS-safe, reaches localhost); tests pass a fake.
+// Keeping the client off the WHATWG fetch types lets the core run anywhere
+// without bundling Obsidian.
 export interface HttpResponse {
   status: number
   header(name: string): string | null
@@ -36,18 +36,22 @@ export interface HttpResponse {
 
 export type HttpGet = (url: string, headers: Record<string, string>) => Promise<HttpResponse>
 
-const fetchHttpGet: HttpGet = async (url, headers) => {
-  const response = await fetch(url, { method: 'GET', headers })
-  return {
-    status: response.status,
-    header: (name) => response.headers.get(name),
-    text: () => response.text()
+// Launder JSON.parse's `any` into `unknown` so callers must narrow explicitly.
+const parseJson = (text: string): unknown => JSON.parse(text) as unknown
+
+// The API returns `{ "error": "..." }` on failure — surface the message for debugging.
+const serverError = (body: string): string | null => {
+  try {
+    const parsed = parseJson(body) as { error?: unknown } | null
+    return typeof parsed?.error === 'string' ? parsed.error : null
+  } catch {
+    return null
   }
 }
 
 interface ClientOptions {
   apiKey: string
-  httpGet?: HttpGet
+  httpGet: HttpGet
 }
 
 // Production Jamie public API. To test against a local instance, change this temporarily.
@@ -62,7 +66,7 @@ export class JamieClient {
 
   constructor(opts: ClientOptions) {
     this.apiKey = opts.apiKey
-    this.httpGet = opts.httpGet ?? fetchHttpGet
+    this.httpGet = opts.httpGet
   }
 
   async verifyKey() {
@@ -95,35 +99,31 @@ export class JamieClient {
     return url.toString()
   }
 
-  private async get(path: string, input: Record<string, unknown>) {
+  private async get(path: string, input: Record<string, unknown>): Promise<unknown> {
     const response = await this.httpGet(this.buildUrl(path, input), {
       'x-api-key': this.apiKey,
       accept: 'application/json'
     })
 
     const body = await response.text()
-    // The API returns `{ "error": "..." }` on failure — surface it for debugging.
-    const serverError = () => {
-      try {
-        const parsed = JSON.parse(body)
-        return typeof parsed?.error === 'string' ? parsed.error : null
-      } catch {
-        return null
-      }
-    }
 
-    if (response.status === 401)
-      throw new JamieAuthError(serverError() ?? 'Invalid or missing API key')
+    if (response.status === 401) {
+      throw new JamieAuthError(serverError(body) ?? 'Invalid or missing API key')
+    }
     if (response.status === 429) {
       const resetSeconds = Number(response.header('x-ratelimit-reset') ?? '0')
       throw new JamieRateLimitError(resetSeconds * 1000)
     }
     if (response.status < 200 || response.status >= 300) {
-      throw new JamieHttpError(response.status, serverError() ?? body ?? `HTTP ${response.status}`)
+      throw new JamieHttpError(
+        response.status,
+        serverError(body) ?? body ?? `HTTP ${response.status}`
+      )
     }
 
-    const json = body ? JSON.parse(body) : null
-    // Unwrap the tRPC envelope; fall back to the raw body if it isn't wrapped.
-    return json?.result?.data?.json ?? json
+    if (!body) return null
+    // Unwrap the tRPC envelope (`result.data.json`); fall back to the raw value.
+    const envelope = parseJson(body) as { result?: { data?: { json?: unknown } } } | null
+    return envelope?.result?.data?.json ?? envelope
   }
 }

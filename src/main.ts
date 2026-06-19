@@ -45,7 +45,7 @@ export default class JamieSyncPlugin extends Plugin {
     const minutes = this.settings.syncIntervalMinutes
     if (minutes > 0) {
       // registerInterval ties the timer to the plugin lifecycle (auto-cleared on unload).
-      this.registerInterval(window.setInterval(() => this.syncNow(), minutes * 60_000))
+      this.registerInterval(window.setInterval(() => void this.syncNow(), minutes * 60_000))
     }
   }
 
@@ -99,7 +99,8 @@ export default class JamieSyncPlugin extends Plugin {
         settings: this.settings,
         state: this.state,
         log: (message) => notice.setMessage(`Jamie: ${message}`),
-        now: () => new Date()
+        now: () => new Date(),
+        wait: (ms) => new Promise((resolve) => window.setTimeout(resolve, ms))
       })
       await this.persist()
       notice.setMessage(
