@@ -1,7 +1,7 @@
 {
   "id": "jamie-sync",
   "name": "Jamie Sync",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "minAppVersion": "1.4.0",
   "description": "Sync your Jamie meeting notes and transcripts into your Obsidian vault.",
   "author": "Jamie",
