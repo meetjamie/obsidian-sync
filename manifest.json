@@ -3,7 +3,7 @@
   "name": "Jamie Sync",
   "version": "0.1.4",
   "minAppVersion": "1.4.0",
-  "description": "Sync your Jamie meeting notes and transcripts into your Obsidian vault.",
+  "description": "Sync your Jamie meeting notes and transcripts into your vault.",
   "author": "Jamie",
   "authorUrl": "https://meetjamie.ai",
   "isDesktopOnly": false

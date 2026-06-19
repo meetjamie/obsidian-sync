@@ -68,7 +68,6 @@ export class JamieSettingTab extends PluginSettingTab {
   display() {
     const { containerEl } = this
     containerEl.empty()
-    containerEl.createEl('h2', { text: 'Jamie Sync' })
 
     const settings = this.plugin.settings
 
