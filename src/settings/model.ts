@@ -2,7 +2,6 @@ export type DestinationMode = 'folder' | 'daily-folder' | 'daily-note'
 
 export interface JamieSyncSettings {
   apiKey: string
-  baseUrl: string
   destinationMode: DestinationMode
   notesFolder: string
   transcriptsFolder: string
@@ -20,7 +19,6 @@ export interface JamieSyncSettings {
 
 export const DEFAULT_SETTINGS: JamieSyncSettings = {
   apiKey: '',
-  baseUrl: 'https://beta-api.meetjamie.ai',
   destinationMode: 'folder',
   notesFolder: 'Jamie/Meetings',
   transcriptsFolder: 'Jamie/Transcripts',

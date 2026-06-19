@@ -4,7 +4,7 @@ Syncs your Jamie meeting **notes** and **transcripts** into an Obsidian vault by
 
 ## What it does
 
-- Settings tab: API key + base URL, **destination mode**, notes/transcripts/daily-note folders, toggles, sync interval, re-sync controls, **Test connection**.
+- Settings tab: API key, **destination mode**, notes/transcripts/daily-note folders, toggles, sync interval, re-sync controls, **Test connection**.
 - Commands: **Jamie: Sync now**, **Jamie: Reset sync state**. Auto-syncs on Obsidian load and on a configurable interval.
 - Polls `meetings.list` + `meetings.get`, renders each meeting to a Markdown note (frontmatter, short-summary callout, action-item checkboxes) plus a linked transcript file, with note↔transcript wikilinks.
 - **Three destination modes** (matching Granola): a dedicated folder, per-day folders, or appending each meeting as a block into the day's **daily note**.
@@ -55,7 +55,7 @@ New releases then auto-update.
 
 ## Network use
 
-This plugin sends authenticated HTTPS requests to the configured Jamie API base URL (default `https://beta-api.meetjamie.ai`) to read your meetings, and stores your API key in the plugin's `data.json` inside the vault. It makes no other network calls. (This must be disclosed in a community-store submission.)
+This plugin sends authenticated HTTPS requests to the Jamie public API (`https://beta-api.meetjamie.ai`) to read your meetings, and stores your API key in the plugin's `data.json` inside the vault. It makes no other network calls. (This must be disclosed in a community-store submission.)
 
 ## Layout
 

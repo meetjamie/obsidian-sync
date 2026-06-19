@@ -47,23 +47,21 @@ const fetchHttpGet: HttpGet = async (url, headers) => {
 
 interface ClientOptions {
   apiKey: string
-  baseUrl?: string
   httpGet?: HttpGet
 }
 
-const DEFAULT_BASE_URL = 'https://beta-api.meetjamie.ai'
+// Production Jamie public API. To test against a local instance, change this temporarily.
+const JAMIE_API_BASE_URL = 'https://beta-api.meetjamie.ai'
 
 // Jamie's public API is tRPC-over-HTTP: GET params are JSON-encoded under the
 // `input` query param as `{ json: {...} }`, and the response payload is nested
 // at `result.data.json`. This client hides both quirks behind plain methods.
 export class JamieClient {
   private readonly apiKey: string
-  private readonly baseUrl: string
   private readonly httpGet: HttpGet
 
   constructor(opts: ClientOptions) {
     this.apiKey = opts.apiKey
-    this.baseUrl = (opts.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, '')
     this.httpGet = opts.httpGet ?? fetchHttpGet
   }
 
@@ -90,7 +88,7 @@ export class JamieClient {
   }
 
   private buildUrl(path: string, input: Record<string, unknown>) {
-    const url = new URL(this.baseUrl + path)
+    const url = new URL(JAMIE_API_BASE_URL + path)
     if (Object.keys(input).length > 0) {
       url.searchParams.set('input', JSON.stringify({ json: input }))
     }

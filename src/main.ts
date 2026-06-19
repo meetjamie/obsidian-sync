@@ -91,7 +91,6 @@ export default class JamieSyncPlugin extends Plugin {
     try {
       const client = new JamieClient({
         apiKey: this.settings.apiKey,
-        baseUrl: this.settings.baseUrl,
         httpGet: obsidianHttpGet
       })
       const result = await runSync({
@@ -106,7 +105,7 @@ export default class JamieSyncPlugin extends Plugin {
       notice.setMessage(
         result.ok
           ? `Jamie: synced ${result.written} note(s) (written/updated).`
-          : 'Jamie: sync failed — see console.'
+          : 'Jamie: sync failed — open the developer console (Cmd/Ctrl+Opt+I) for details.'
       )
     } catch (error) {
       console.error('Jamie sync error', error)

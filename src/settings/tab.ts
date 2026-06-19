@@ -87,24 +87,11 @@ export class JamieSettingTab extends PluginSettingTab {
           })
       )
 
-    new Setting(containerEl)
-      .setName('API base URL')
-      .setDesc(
-        'Default https://beta-api.meetjamie.ai. For a local instance use http://localhost:8789.'
-      )
-      .addText((text) =>
-        text.setValue(settings.baseUrl).onChange(async (value) => {
-          settings.baseUrl = value.trim().replace(/\/+$/, '')
-          await this.plugin.persist()
-        })
-      )
-
     new Setting(containerEl).setName('Test connection').addButton((button) =>
       button.setButtonText('Test').onClick(async () => {
         try {
           await new JamieClient({
             apiKey: settings.apiKey,
-            baseUrl: settings.baseUrl,
             httpGet: obsidianHttpGet
           }).verifyKey()
           new Notice('Jamie: connection OK ✅')
