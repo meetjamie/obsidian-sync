@@ -1,6 +1,6 @@
 {
   "name": "@meetjamie/obsidian-sync",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Sync your Jamie meeting notes and transcripts into your vault.",
   "private": true,
   "type": "module",
