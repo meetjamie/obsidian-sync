@@ -66,6 +66,10 @@ describe('renderNoteFile', () => {
     expect(out).toContain('Transcript: [[T]]')
   })
 
+  it('omits the redundant title heading (the filename already shows it)', () => {
+    expect(out).not.toContain('# Weekly Team Sync')
+  })
+
   it('normalizes •-run-on summary bullets into Markdown list items', () => {
     const bullety: MeetingDetail = {
       ...sampleMeeting,

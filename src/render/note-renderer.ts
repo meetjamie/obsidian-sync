@@ -79,28 +79,36 @@ const normalizeSummaryMarkdown = (markdown: string) =>
     )
     .join('\n')
 
-const renderBody = (meeting: MeetingDetail, opts: RenderOptions, headingLevel: 1 | 2) => {
-  const title = meetingTitle(meeting)
-  const heading = '#'.repeat(headingLevel)
-  const lines: string[] = [`${heading} ${title}`]
+const renderBody = (
+  meeting: MeetingDetail,
+  opts: RenderOptions,
+  headingLevel: 1 | 2,
+  emitTitleHeading: boolean
+) => {
+  const subHeading = '#'.repeat(headingLevel + 1)
+  const blocks: string[] = []
+
+  // Standalone-file modes skip the title heading — the filename (date + title) already
+  // shows it. Daily-note mode keeps it to delineate each meeting's block.
+  if (emitTitleHeading) blocks.push(`${'#'.repeat(headingLevel)} ${meetingTitle(meeting)}`)
 
   if (opts.includeShortSummaryCallout && meeting.summary?.short) {
-    lines.push('', '> [!summary] Overview', `> ${meeting.summary.short.replace(/\n/g, '\n> ')}`)
+    blocks.push(`> [!summary] Overview\n> ${meeting.summary.short.replace(/\n/g, '\n> ')}`)
   }
   if (meeting.summary?.markdown) {
-    lines.push('', normalizeSummaryMarkdown(meeting.summary.markdown))
+    blocks.push(normalizeSummaryMarkdown(meeting.summary.markdown))
   }
   if (opts.includeTasks && meeting.tasks.length > 0) {
-    lines.push('', `${heading}# Action items`)
-    for (const task of meeting.tasks) {
+    const items = meeting.tasks.map((task) => {
       const who = task.assignee?.name ? ` (@${task.assignee.name})` : ''
-      lines.push(`- [${task.completed ? 'x' : ' '}] ${task.content}${who}`)
-    }
+      return `- [${task.completed ? 'x' : ' '}] ${task.content}${who}`
+    })
+    blocks.push(`${subHeading} Action items\n${items.join('\n')}`)
   }
   if (opts.includeTranscriptLink && opts.transcriptFileName) {
-    lines.push('', `Transcript: [[${opts.transcriptFileName}]]`)
+    blocks.push(`Transcript: [[${opts.transcriptFileName}]]`)
   }
-  return lines.join('\n')
+  return blocks.join('\n\n')
 }
 
 const frontmatter = (meeting: MeetingDetail, opts: RenderOptions) => {
@@ -123,12 +131,14 @@ const frontmatter = (meeting: MeetingDetail, opts: RenderOptions) => {
 }
 
 // A standalone note file (frontmatter + body). Used by the folder / per-day modes.
+// No title heading — the filename (date + title) already serves as the note's title.
 export const renderNoteFile = (meeting: MeetingDetail, opts: RenderOptions) =>
-  `${frontmatter(meeting, opts)}\n\n${renderBody(meeting, opts, 1)}\n`
+  `${frontmatter(meeting, opts)}\n\n${renderBody(meeting, opts, 1, false)}\n`
 
-// A heading-led section (no frontmatter). Used when appending into a daily note.
+// A heading-led section (no frontmatter). Used when appending into a daily note, where
+// the `## title` heading delineates each meeting's block (and anchors the transcript link).
 export const renderSection = (meeting: MeetingDetail, opts: RenderOptions) =>
-  renderBody(meeting, opts, 2)
+  renderBody(meeting, opts, 2, true)
 
 export const renderTranscript = (meeting: MeetingDetail, noteLinkTarget: string) => {
   const title = meetingTitle(meeting)
