@@ -1,7 +1,8 @@
 name: Release Obsidian plugin
 
 # Pushing a tag that matches the manifest version (no leading "v", e.g. 0.1.0)
-# builds the plugin and publishes a GitHub release with the assets BRAT needs.
+# builds the plugin and publishes a GitHub release with the assets Obsidian's
+# community store downloads (manifest.json + main.js) to ship the new version.
 on:
   push:
     tags:
