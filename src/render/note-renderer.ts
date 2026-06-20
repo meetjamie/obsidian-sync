@@ -160,22 +160,18 @@ export const renderTranscript = (meeting: MeetingDetail, noteLinkTarget: string)
   return `${fm.join('\n')}\n\n${body.join('\n')}\n`
 }
 
-// Daily-note block markers use Obsidian comments (`%% ... %%`): invisible in
-// reading view, but let us replace a meeting's block in place (idempotent re-sync).
-const blockStart = (id: string) => `%% jamie-meeting:${id} %%`
-const blockEnd = (id: string) => `%% /jamie-meeting:${id} %%`
-
-export const upsertMeetingBlock = (existing: string, id: string, block: string) => {
-  const wrapped = `${blockStart(id)}\n${block}\n${blockEnd(id)}`
-  const start = existing.indexOf(blockStart(id))
-  if (start === -1) {
-    const base = existing.replace(/\s+$/, '')
-    return base.length > 0 ? `${base}\n\n${wrapped}\n` : `${wrapped}\n`
-  }
-  const endToken = blockEnd(id)
-  const end = existing.indexOf(endToken, start)
-  if (end === -1) {
-    return `${existing.replace(/\s+$/, '')}\n\n${wrapped}\n`
-  }
-  return `${existing.slice(0, start)}${wrapped}${existing.slice(end + endToken.length)}`
+// Append a meeting's `## <title>` section to a daily note, deduped by that heading so
+// re-runs / reset don't duplicate it. No in-text markers (they leaked into Source mode).
+// Note: daily-note entries aren't updated in place — the summary's own headings make a
+// reliable block boundary impossible. Folder modes update on re-sync instead.
+export const appendMeetingSection = (existing: string, section: string): string => {
+  const heading = section.split('\n', 1)[0]
+  if (existing.split('\n').includes(heading)) return existing
+  const base = existing.replace(/\s+$/, '')
+  return base.length > 0 ? `${base}\n\n${section}\n` : `${section}\n`
 }
+
+// Strip the `%% jamie-meeting:… %%` markers older versions wrote, so existing daily
+// notes get cleaned the next time we touch them.
+export const stripLegacyMeetingMarkers = (text: string): string =>
+  text.replace(/^%%\s*\/?jamie-meeting:[^\n%]*%%[ \t]*\n?/gm, '').replace(/\n{3,}/g, '\n\n')

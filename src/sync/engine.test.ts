@@ -108,8 +108,9 @@ describe('runSync — daily-note mode', () => {
     const daily = files.get(`${config.dailyNoteFolder}/2026-06-15.md`) ?? ''
     expect(first.written).toBe(2)
     expect(again.written).toBe(0)
-    expect(daily).toContain(sampleMeeting.id)
-    expect(daily).toContain('999')
+    expect(daily).toContain(`## ${sampleMeeting.title}`)
+    expect(daily).toContain('## Design Review')
+    expect(daily).not.toContain('jamie-meeting:') // no visible markers
     expect(files.size).toBe(3) // one daily note + two transcripts
   })
 })

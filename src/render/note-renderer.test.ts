@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { MeetingDetail } from '../api/types'
 import {
+  appendMeetingSection,
   buildBaseName,
   contentHash,
   renderNoteFile,
   renderSection,
   renderTranscript,
-  upsertMeetingBlock
+  stripLegacyMeetingMarkers
 } from './note-renderer'
 import { sampleMeeting } from './sample'
 
@@ -101,19 +102,26 @@ describe('renderTranscript', () => {
   })
 })
 
-describe('upsertMeetingBlock', () => {
-  it('appends a wrapped block when absent, preserving existing content', () => {
-    const out = upsertMeetingBlock('# Daily', 'abc', '## Meeting')
-    expect(out.startsWith('# Daily')).toBe(true)
-    expect(out).toContain('%% jamie-meeting:abc %%')
-    expect(out).toContain('## Meeting')
-    expect(out).toContain('%% /jamie-meeting:abc %%')
+describe('appendMeetingSection', () => {
+  it('appends a section when its heading is absent, preserving existing content', () => {
+    const out = appendMeetingSection('# 2026-06-15', '## Standup\nbody')
+    expect(out.startsWith('# 2026-06-15')).toBe(true)
+    expect(out).toContain('## Standup')
   })
-  it('replaces the block in place and stays idempotent', () => {
-    const once = upsertMeetingBlock('# Daily', 'abc', '## V1')
-    const twice = upsertMeetingBlock(once, 'abc', '## V2')
-    expect(twice).toContain('## V2')
-    expect(twice).not.toContain('## V1')
-    expect(twice.split('%% jamie-meeting:abc %%').length).toBe(2) // exactly one block
+  it('does not duplicate when the heading is already present', () => {
+    const once = appendMeetingSection('', '## Standup\nbody')
+    const twice = appendMeetingSection(once, '## Standup\nother body')
+    expect(twice).toBe(once)
+    expect(twice.split('## Standup').length).toBe(2) // heading appears exactly once
+  })
+})
+
+describe('stripLegacyMeetingMarkers', () => {
+  it('removes the old %% jamie-meeting markers but keeps the content', () => {
+    const input = '%% jamie-meeting:abc %%\n## Standup\nbody\n%% /jamie-meeting:abc %%'
+    const out = stripLegacyMeetingMarkers(input)
+    expect(out).not.toContain('jamie-meeting')
+    expect(out).toContain('## Standup')
+    expect(out).toContain('body')
   })
 })

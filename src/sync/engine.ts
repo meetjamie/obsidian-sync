@@ -1,6 +1,7 @@
 import { JamieAuthError, type JamieClient, JamieRateLimitError } from '../api/client'
 import type { MeetingDetail, MeetingListResult } from '../api/types'
 import {
+  appendMeetingSection,
   buildBaseName,
   contentHash,
   formatDay,
@@ -9,7 +10,7 @@ import {
   renderNoteFile,
   renderSection,
   renderTranscript,
-  upsertMeetingBlock
+  stripLegacyMeetingMarkers
 } from '../render/note-renderer'
 import type { JamieSyncSettings } from '../settings/model'
 
@@ -60,8 +61,8 @@ const renderOptionsFor = (
 })
 
 // Writes a meeting to the vault per the configured destination mode and returns the
-// paths recorded in sync state. Daily-note mode appends an idempotent block into the
-// day's note; the other modes own a standalone file.
+// paths recorded in sync state. Daily-note mode appends a `## <title>` section to the
+// day's note (deduped by heading); the other modes own a standalone file.
 const writeMeeting = async (
   detail: MeetingDetail,
   settings: JamieSyncSettings,
@@ -81,11 +82,13 @@ const writeMeeting = async (
 
   if (settings.destinationMode === 'daily-note') {
     notePath = `${settings.dailyNoteFolder}/${day}.md`
-    const existing = (await writer.read(notePath)) ?? ''
-    await writer.write(
-      notePath,
-      upsertMeetingBlock(existing, detail.id, renderSection(detail, opts))
+    const original = (await writer.read(notePath)) ?? ''
+    // Strip any legacy `%%` markers, then append this meeting's section (deduped by heading).
+    const next = appendMeetingSection(
+      stripLegacyMeetingMarkers(original),
+      renderSection(detail, opts)
     )
+    if (next !== original) await writer.write(notePath, next)
     // Transcript links back to the meeting's heading inside the daily note.
     noteLinkTarget = `${day}#${meetingTitle(detail)}`
   } else {
