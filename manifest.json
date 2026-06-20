@@ -1,7 +1,7 @@
 {
   "id": "jamie-sync",
   "name": "Jamie Sync",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "minAppVersion": "1.4.0",
   "description": "Sync your Jamie meeting notes and transcripts into your vault.",
   "author": "Jamie",
